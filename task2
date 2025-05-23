@@ -1,0 +1,159 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <random>
+using namespace std;
+
+// Перерахування мастей
+enum Suit { Hearts, Diamonds, Clubs, Spades };
+
+// Клас Card
+class Card {
+private:
+    Suit suit;
+    int value; // 2-14 (2-10, 11=Jack, 12=Queen, 13=King, 14=Ace)
+
+public:
+    // Конструктор карти
+    Card(Suit suit, int value) : suit(suit), value(value) {}
+
+    // Повертає масть
+    Suit getSuit() const { return suit; }
+
+    // Повертає значення карти
+    int getValue() const { return value; }
+
+    // Вивід карти на екран
+    void print() const {
+        string suitName;
+        switch (suit) {
+        case Hearts: suitName = "Hearts"; break;
+        case Diamonds: suitName = "Diamonds"; break;
+        case Clubs: suitName = "Clubs"; break;
+        case Spades: suitName = "Spades"; break;
+        }
+
+        string valueName;
+        if (value <= 10)
+            valueName = to_string(value);
+        else if (value == 11)
+            valueName = "Jack";
+        else if (value == 12)
+            valueName = "Queen";
+        else if (value == 13)
+            valueName = "King";
+        else
+            valueName = "Ace";
+
+        cout << valueName << " of " << suitName;
+    }
+
+    // Перевіряє, чи карта червона
+    bool isRed() const {
+        return suit == Hearts || suit == Diamonds;
+    }
+};
+
+// Клас Deck (колода карт)
+class Deck {
+protected:
+    vector<Card> cards; // вектор карт
+
+public:
+    // Конструктор порожньої колоди
+    Deck() {}
+
+    // Ініціалізувати впорядковану колоду
+    void initializeOrdered() {
+        cards.clear();
+        for (int s = Hearts; s <= Spades; ++s) {
+            for (int v = 2; v <= 14; ++v) {
+                cards.emplace_back(static_cast<Suit>(s), v);
+            }
+        }
+    }
+
+    // Ініціалізувати випадкову колоду
+    void initializeShuffled() {
+        initializeOrdered();
+        random_device rd;
+        mt19937 g(rd());
+        shuffle(cards.begin(), cards.end(), g);
+    }
+
+    // Вивести всю колоду
+    void printDeck() const {
+        for (const auto& card : cards) {
+            card.print();
+            cout << endl;
+        }
+    }
+
+    // Отримати кількість карт у колоді
+    int size() const {
+        return cards.size();
+    }
+
+    // Доступ до картки за індексом
+    Card& getCard(int index) {
+        return cards.at(index);
+    }
+
+    // Видалити картку за індексом
+    void removeCard(int index) {
+        cards.erase(cards.begin() + index);
+    }
+};
+
+// Клас Solitaire - наслідує від Deck
+class Solitaire : public Deck {
+public:
+    // Конструктор Solitaire, що створює перемішану колоду
+    Solitaire() {
+        initializeShuffled();
+    }
+
+    // Головна функція гри
+    void play() {
+        for (int round = 1; round <= 3; ++round) {
+            cout << "\n=== Round " << round << " ===" << endl;
+            int i = 0;
+            while (i + 2 < cards.size()) {
+                Card& first = cards[i];
+                Card& middle = cards[i + 1];
+                Card& last = cards[i + 2];
+
+                // Перевіряємо колір першої та останньої карт
+                if (first.isRed() == last.isRed()) {
+                    // Якщо одного кольору — видаляємо першу і останню карти
+                    cout << "Removing: ";
+                    first.print();
+                    cout << " and ";
+                    last.print();
+                    cout << endl;
+
+                    // Важливо: спочатку видаляємо карту з більшим індексом
+                    removeCard(i + 2); // видалити останню карту
+                    removeCard(i);     // видалити першу карту
+
+                    // Не просуваємо індекс, бо масив змінився
+                }
+                else {
+                    // Якщо не одного кольору, переходимо далі
+                    ++i;
+                }
+            }
+
+            cout << "\nDeck after round " << round << ":\n";
+            printDeck();
+        }
+    }
+};
+
+// Головна функція
+int main() {
+    Solitaire game;
+    game.play();
+    return 0;
+}
