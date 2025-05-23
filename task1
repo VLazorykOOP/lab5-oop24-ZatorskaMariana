@@ -1,0 +1,133 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+// === Базовий клас Transport ===
+class Transport {
+protected:
+    string name;
+    int capacity;
+
+public:
+    Transport(const string& name, int capacity)
+        : name(name), capacity(capacity) {
+        cout << "[+] Transport created: " << name << endl;
+    }
+
+    virtual ~Transport() {
+        cout << "[-] Transport destroyed: " << name << endl;
+    }
+
+    virtual void print() const {
+        cout << "Transport Name: " << name << ", Capacity: " << capacity << endl;
+    }
+};
+
+// === Клас Car ===
+class Car : public Transport {
+private:
+    int numberOfDoors;
+
+public:
+    Car(const string& name, int capacity, int numberOfDoors)
+        : Transport(name, capacity), numberOfDoors(numberOfDoors) {
+        cout << "[+] Car created: " << name << endl;
+    }
+
+    ~Car() override {
+        cout << "[-] Car destroyed: " << name << endl;
+    }
+
+    void print() const override {
+        cout << "Car Name: " << name
+             << ", Capacity: " << capacity
+             << ", Doors: " << numberOfDoors << endl;
+    }
+};
+
+// === Клас Truck ===
+class Truck : public Transport {
+private:
+    int loadCapacity;
+
+public:
+    Truck(const string& name, int capacity, int loadCapacity)
+        : Transport(name, capacity), loadCapacity(loadCapacity) {
+        cout << "[+] Truck created: " << name << endl;
+    }
+
+    ~Truck() override {
+        cout << "[-] Truck destroyed: " << name << endl;
+    }
+
+    void print() const override {
+        cout << "Truck Name: " << name
+             << ", Capacity: " << capacity
+             << ", Load Capacity: " << loadCapacity << " kg" << endl;
+    }
+};
+
+// === Клас Ship ===
+class Ship : public Transport {
+private:
+    string homePort;
+
+public:
+    Ship(const string& name, int capacity, const string& homePort)
+        : Transport(name, capacity), homePort(homePort) {
+        cout << "[+] Ship created: " << name << endl;
+    }
+
+    ~Ship() override {
+        cout << "[-] Ship destroyed: " << name << endl;
+    }
+
+    void print() const override {
+        cout << "Ship Name: " << name
+             << ", Capacity: " << capacity
+             << ", Home Port: " << homePort << endl;
+    }
+};
+
+// === Клас Airplane ===
+class Airplane : public Transport {
+private:
+    int range;
+
+public:
+    Airplane(const string& name, int capacity, int range)
+        : Transport(name, capacity), range(range) {
+        cout << "[+] Airplane created: " << name << endl;
+    }
+
+    ~Airplane() override {
+        cout << "[-] Airplane destroyed: " << name << endl;
+    }
+
+    void print() const override {
+        cout << "Airplane Name: " << name
+             << ", Capacity: " << capacity
+             << ", Range: " << range << " km" << endl;
+    }
+};
+
+// === Функція тестування ===
+void testTransport() {
+    Car myCar("Toyota Corolla", 5, 4);
+    Truck myTruck("Volvo FH16", 2, 20000);
+    Ship myShip("Titanic", 3000, "Southampton");
+    Airplane myAirplane("Boeing 747", 416, 14000);
+
+    cout << "\n=== Transport Info ===\n" << endl;
+
+    myCar.print();
+    myTruck.print();
+    myShip.print();
+    myAirplane.print();
+}
+
+// === Головна функція ===
+int main() {
+    testTransport();
+    return 0;
+}
