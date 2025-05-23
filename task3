@@ -1,0 +1,147 @@
+#include <iostream>
+#include <vector>
+#include <stdexcept>
+using namespace std;
+
+// Базовий клас Vector
+class Vector {
+protected:
+    vector<int> data; // Вектор для зберігання даних
+
+public:
+    // Конструктор за замовчуванням
+    Vector() {}
+
+    // Конструктор з розміром
+    Vector(int size) : data(size) {}
+
+    // Конструктор копіювання
+    Vector(const Vector& other) {
+        data = other.data;
+    }
+
+    // Оператор присвоювання
+    Vector& operator=(const Vector& other) {
+        if (this != &other) {
+            data = other.data;
+        }
+        return *this;
+    }
+
+    // Введення даних у вектор
+    friend istream& operator>>(istream& in, Vector& vec) {
+        for (auto& elem : vec.data) {
+            in >> elem;
+        }
+        return in;
+    }
+
+    // Виведення даних вектора
+    friend ostream& operator<<(ostream& out, const Vector& vec) {
+        for (const auto& elem : vec.data) {
+            out << elem << " ";
+        }
+        return out;
+    }
+
+    // Отримати розмір вектора
+    int size() const {
+        return data.size();
+    }
+
+    // Доступ до елемента за індексом (без перевірки меж)
+    int& operator[](int index) {
+        return data.at(index);
+    }
+
+    const int& operator[](int index) const {
+        return data.at(index);
+    }
+};
+
+// Похідний клас SafeVector
+class SafeVector : public Vector {
+private:
+    int lowerBound;
+    int upperBound;
+
+public:
+    // Конструктор SafeVector з нижньою і верхньою межами
+    SafeVector(int lower, int upper) : lowerBound(lower), upperBound(upper) {
+        if (upper < lower) {
+            throw invalid_argument("Upper bound must be greater than or equal to lower bound.");
+        }
+        data.resize(upper - lower + 1);
+    }
+
+    // Конструктор копіювання
+    SafeVector(const SafeVector& other) : Vector(other) {
+        lowerBound = other.lowerBound;
+        upperBound = other.upperBound;
+    }
+
+    // Оператор присвоювання
+    SafeVector& operator=(const SafeVector& other) {
+        if (this != &other) {
+            Vector::operator=(other);
+            lowerBound = other.lowerBound;
+            upperBound = other.upperBound;
+        }
+        return *this;
+    }
+
+    // Доступ до елемента з перевіркою меж
+    int& operator[](int index) {
+        if (index < lowerBound || index > upperBound) {
+            throw out_of_range("Index out of bounds!");
+        }
+        return data.at(index - lowerBound);
+    }
+
+    const int& operator[](int index) const {
+        if (index < lowerBound || index > upperBound) {
+            throw out_of_range("Index out of bounds!");
+        }
+        return data.at(index - lowerBound);
+    }
+
+    // Введення для SafeVector
+    friend istream& operator>>(istream& in, SafeVector& vec) {
+        for (auto& elem : vec.data) {
+            in >> elem;
+        }
+        return in;
+    }
+
+    // Виведення для SafeVector
+    friend ostream& operator<<(ostream& out, const SafeVector& vec) {
+        for (int i = 0; i < vec.data.size(); ++i) {
+            out << "[" << (vec.lowerBound + i) << "]=" << vec.data[i] << " ";
+        }
+        return out;
+    }
+};
+
+// Головна функція
+int main() {
+    try {
+        SafeVector sv(1, 5); // Створення безпечного вектора з межами від 1 до 5
+        cout << "Enter 5 elements:" << endl;
+        cin >> sv;
+
+        cout << "Your SafeVector:" << endl;
+        cout << sv << endl;
+
+        // Демонстрація звернення до елемента
+        cout << "Element at index 3: " << sv[3] << endl;
+
+        // Спроба доступу за межами
+        cout << "Trying to access index 6..." << endl;
+        cout << sv[6] << endl; // Тут буде виключення
+    }
+    catch (const exception& e) {
+        cout << "Exception: " << e.what() << endl;
+    }
+
+    return 0;
+}
